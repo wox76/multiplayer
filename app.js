@@ -26,11 +26,12 @@ let scene, camera, renderer, controls;
 let localPlayerMesh;
 let otherPlayers = {}; 
 let remoteBullets = [];
+let spawnedObjects = {};
 let keys = { w: false, a: false, s: false, d: false, ' ': false };
 let isPlaying = false;
 
 let lastUpdateTime = 0;
-const updateInterval = 50; 
+const updateInterval = 1;  
 
 let playerData = {
     name: "Player",
@@ -217,6 +218,30 @@ function initNetwork() {
             createdAt: bData.createdAt
         });
     });
+
+    const objectsRef = ref(db, 'objects');
+    onChildAdded(objectsRef, (snapshot) => {
+        const objData = snapshot.val();
+        const objId = snapshot.key;
+        if (spawnedObjects[objId]) return;
+
+        let geom;
+        if (objData.type === 'cube') {
+            geom = new THREE.BoxGeometry(1, 1, 1);
+        } else if (objData.type === 'sphere') {
+            geom = new THREE.SphereGeometry(0.5, 16, 16);
+        } else if (objData.type === 'cylinder') {
+            geom = new THREE.CylinderGeometry(0.5, 0.5, 1, 16);
+        } else {
+            geom = new THREE.BoxGeometry(1, 1, 1);
+        }
+
+        const mat = new THREE.MeshStandardMaterial({ color: objData.color });
+        const mesh = new THREE.Mesh(geom, mat);
+        mesh.position.set(objData.x, objData.y, objData.z);
+        scene.add(mesh);
+        spawnedObjects[objId] = mesh;
+    });
 }
 
 // --- LOOP DI GIOCO ---
@@ -284,6 +309,39 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
+// --- LOGICA SPAWN OGGETTI CASUALI CON CLICK MOUSE ---
+function spawnRandomObject() {
+    if (!localPlayerMesh) return;
+    const dirX = Math.sin(localPlayerMesh.rotation.y);
+    const dirZ = Math.cos(localPlayerMesh.rotation.y);
+    
+    const spawnX = localPlayerMesh.position.x + dirX * 2;
+    const spawnY = 0.5;
+    const spawnZ = localPlayerMesh.position.z + dirZ * 2;
+    
+    const types = ['cube', 'sphere', 'cylinder'];
+    const randomType = types[Math.floor(Math.random() * types.length)];
+    
+    const objectData = {
+        type: randomType,
+        x: spawnX,
+        y: spawnY,
+        z: spawnZ,
+        color: Math.random() * 0xffffff,
+        createdAt: Date.now()
+    };
+    
+    const objectsRef = ref(db, 'objects');
+    push(objectsRef, objectData);
+}
+
+document.addEventListener('pointerdown', (e) => {
+    if (!isPlaying) return;
+    if (e.button !== 0) return; // Solo tasto sinistro del mouse
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+    spawnRandomObject();
+});
 
 // --- AVVIO SICURO GESTITO DAL DOM ---
 const setupLogin = () => {
