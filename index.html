@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Multiplayer Web Game</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: sans-serif; 
+            user-select: none; 
+            background-color: #111116; 
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            padding: 15px;
+            border-radius: 8px;
+            pointer-events: none;
+            display: none; /* Si mostra solo dopo il login superato */
+        }
+        /* Schermata di Login overlay a schermo intero */
+        #login-screen {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
+            background: #111116;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            color: white;
+        }
+        .login-box {
+            background: #1a1a24;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid #444455;
+        }
+        .login-box h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .login-box input {
+            padding: 12px;
+            width: 220px;
+            border: 1px solid #444455;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            background-color: #ffffff;
+            color: #000000;
+            outline: none;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+        .login-box button {
+            padding: 12px 24px;
+            background: #5c5edc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+        .login-box button:hover { 
+            background: #4a4cb8; 
+        }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Scegli il tuo Avatar</h2>
+            <input type="text" id="username-input" placeholder="Inserisci il tuo nome..." maxlength="12" autocomplete="off" autofocus><br>
+            <button id="start-btn">Entra nel Gioco</button>
+        </div>
+    </div>
+
+    <div id="ui">
+        <h3>Multiplayer Arena</h3>
+        <p>Muoviti con: <strong>WASD</strong></p>
+        <p>Spara con: <strong>SPAZIO</strong></p>
+        <p>Ruota visuale: <strong>Trascina il mouse</strong></p>
+    </div>
+
+    <script type="module" src="app.js?v=1.0.1"></script>
+</body>
+</html>
